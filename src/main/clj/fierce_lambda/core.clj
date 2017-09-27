@@ -64,7 +64,7 @@
                  io/reader
                  json/read)))))
 
-(defmacro fierceλ
+(defmacro deflambda
   [fname args & body]
   (let [class-name (camel-case fname)]
     `(make-lambda ~class-name ~(str fname) (fn ~args ~@body))))
