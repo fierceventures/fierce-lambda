@@ -34,27 +34,31 @@
         work (comp s/capitalize remove-chars)]
     (apply str (mapcat work pieces))))
 
-(defn make-lambda
-  "Create an implementation of RequestStreamHandler with logging configured."
-  [class-name fn-name handler-fn]
-  (eval `(defn ~'-handleRequest [this# in# os# ctx#]
-           (logging/configure-logging ctx#)
-           (-> in#
-               read-is
-               (#(~handler-fn % ctx#))
-               (write-to-os os#))))
+(defmacro deflambda
+  [fname args & body]
+  (let [class-name (camel-case fname)]
+    `(do (gen-class :name ~(-> class-name qualify symbol)
+                    :implements [com.amazonaws.services.lambda.runtime.RequestStreamHandler])
 
-  (eval `(gen-class
-           :name ~(-> class-name qualify symbol)
-           :implements [com.amazonaws.services.lambda.runtime.RequestStreamHandler]))
+         (defn ~'-handleRequest
+           "Register logging, read input stream, handle event, write to outputstream if non-nil."
+           [this# in# os# context#]
+           (logging/configure-logging context#)
+           (let [~'handler-fn (fn ~args ~@body)]
+             (-> in#
+                 read-is
+                 (~'handler-fn context#)
+                 (write-to-os os#))))
 
-  (eval `(defn ~(symbol fn-name)
-           [~'data]
+         (defn ~(symbol (str fname))
+           "Execute the lambda function directly. "
+           [data#]
            (with-open [os# (ByteArrayOutputStream. 4096)
                        writer# (io/writer os#)]
-             (json/write ~'data writer#)
-             (-> (lambda/invoke :function-name ~fn-name
+             (json/write data# writer#)
+             (-> (lambda/invoke :function-name ~(str fname)
                                 :payload (.toString os#))
+
                  (#(if-let [err# (:function-error %)]
                      (throw (ex-info (str "Lambda Error: " err#) %))
                      %))
@@ -62,9 +66,4 @@
                  .array
                  io/input-stream
                  io/reader
-                 json/read)))))
-
-(defmacro deflambda
-  [fname args & body]
-  (let [class-name (camel-case fname)]
-    `(make-lambda ~class-name ~(str fname) (fn ~args ~@body))))
+                 json/read))))))
