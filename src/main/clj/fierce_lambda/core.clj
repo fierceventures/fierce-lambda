@@ -1,6 +1,6 @@
 (ns fierce-lambda.core
   (:require [amazonica.aws.lambda :as lambda]
-            [clojure.data.json :as json]
+            [cheshire.core :as json]
             [clojure.java.io :as io]
             [clojure.string :as s]
             [timbre-lambda.logging :as logging])
@@ -10,14 +10,14 @@
   "Reads a json input stream into clojure"
   [input-stream]
   (with-open [reader (io/reader input-stream)]
-    (json/read reader :key-fn keyword)))
+    (json/parse-stream reader true)))
 
 (defn write-to-os
   "Write the event to the os if the event is non-nil"
   [event os]
   (when event
     (with-open [writer (io/writer os)]
-      (json/write event writer :key-fn name)
+      (json/generate-stream event writer)
       (.flush writer))))
 
 (defn qualify
@@ -66,4 +66,4 @@
                  .array
                  io/input-stream
                  io/reader
-                 json/read))))))
+                 json/parse-stream))))))
