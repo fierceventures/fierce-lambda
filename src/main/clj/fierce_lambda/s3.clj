@@ -15,13 +15,10 @@
                      :input-stream is
                      :metadata {:content-length (count json-bytes)}))))
 
-(defn- get-input-stream
-  "Get the input-stream for the bucket and key"
-  [bucket key]
-  (:input-stream (s3/get-object bucket key)))
-
 (defn get-json
   "Given an s3 bucket and key, will return a map of the json"
   [bucket key]
-  (with-open [is (get-input-stream bucket key)]
-    (json/parse-stream (io/reader is) true)))
+  (-> (s3/get-object bucket key)
+      :input-stream
+      io/reader
+      (json/parse-stream true)))
