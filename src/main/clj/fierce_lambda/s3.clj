@@ -18,7 +18,7 @@
 (defn- get-input-stream
   "Get the input-stream for the bucket and key"
   [bucket key]
-  (:input-stream (s3/get-object key bucket)))
+  (:input-stream (s3/get-object bucket key)))
 
 (defn get-json
   "Given an s3 bucket and key, will return a map of the json"

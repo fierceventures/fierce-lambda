@@ -1,4 +1,4 @@
-(defproject fierce/fierce-lambda "0.0.5"
+(defproject fierce/fierce-lambda "0.0.6"
   :author "Stuart King <https://fierce.ventures>"
   :description "Utils for AWS Lambda functions"
   :license {:name         "Eclipse Public License"
