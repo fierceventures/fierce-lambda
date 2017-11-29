@@ -1,4 +1,4 @@
-(defproject fierce/fierce-lambda "0.0.7"
+(defproject fierce/fierce-lambda "0.0.8"
   :author "Stuart King <https://fierce.ventures>"
   :description "Utils for AWS Lambda functions"
   :license {:name         "Eclipse Public License"
@@ -6,7 +6,7 @@
             :distribution :repo
             :comments     "Same as Clojure"}
   :url "https://github.com/fierceventures/fierce-lambda"
-  :dependencies [[fierce/timbre-lambda "0.0.1"]
+  :dependencies [[fierce/timbre-lambda "0.0.2"]
                  [amazonica "0.3.111" :exclusions [com.amazonaws/aws-java-sdk
                                                    com.amazonaws/amazon-kinesis-client]]
                  [cheshire "5.8.0"]
